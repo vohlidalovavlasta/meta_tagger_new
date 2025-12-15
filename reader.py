@@ -12,10 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 import codecs
 import collections
 import io
@@ -170,8 +166,8 @@ class Reader(object):
 
     chars_id = self.elements_to_dict(char_corpus, 0)
     if add_special_tokens:
-      keys = chars_id.keys()
-      values = chars_id.values()
+      keys = list(chars_id.keys())
+      values = list(chars_id.values())
       next_index = max(values) + 1
       for tok in self.special_tokens:
         for c in tok:

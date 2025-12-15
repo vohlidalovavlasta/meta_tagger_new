@@ -12,11 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 import codecs
+import json
 import os
 from absl import flags
 import numpy as np
@@ -69,7 +66,7 @@ class Vocab(object):
      self.id_tag) = ({}, {}, {}, {}, {})
     def read(dictonary, filename):
       output_json = json.load(tf.gfile.GFile(output_dir + filename, 'r'))
-      for key, val in output_json.iteritems():
+      for key, val in output_json.items():
         dictonary[key] = val
     read(self.tag_id, 'tag_id.txt')
     self.id_tag = dict(map(reversed, self.tag_id.items()))

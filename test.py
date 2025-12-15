@@ -12,10 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 import io
 import numpy as np
 import tensorflow as tf
@@ -55,7 +51,7 @@ class Test(object):
           f.write(u'\t_\t_\t')
           f.write(self._id_tag[p])
           f.write(u'\t')
-        f.write(str(1).decode('utf-8'))
+        f.write(u'1')
         f.write(u'\t_\t_\n')
       f.write(u'\n')
     f.seek(0)
@@ -111,7 +107,7 @@ class Test(object):
           f.write(u'\t_\t_\t')
           f.write(self._id_tag[p])
           f.write(u'\t')
-        f.write(str(1).decode('utf-8'))
+        f.write(u'1')
         f.write(u'\t_\t_\t_')
         f.write(u'\n')
       f.write(u'\n')
