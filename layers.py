@@ -12,10 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 import tensorflow as tf
 
 
@@ -29,11 +25,11 @@ def linear_with_dropout(is_training,
   input_size = inputs.get_shape().as_list()[-1]
 
   if is_training and keep_prob < 1:
-    inputs = tf.nn.dropout(inputs, keep_prob)
+    inputs = tf.nn.dropout(inputs, keep_prob=keep_prob)
 
   shape = tf.shape(inputs)
   output_shape = []
-  for i in xrange(len(inputs.get_shape().as_list()) - 1):
+  for i in range(len(inputs.get_shape().as_list()) - 1):
     output_shape.append(shape[i])
   output_shape.append(output_size)
 

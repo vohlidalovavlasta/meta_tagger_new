@@ -12,10 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 from datetime import timedelta
 import json
 import math
@@ -133,7 +129,7 @@ class Vocab(object):
   def read(self, output_dir):
     def read_dict(dictonary, filename):
       output_json = json.load(tf.gfile.GFile(output_dir + filename, 'r'))
-      for key, val in output_json.iteritems():
+      for key, val in output_json.items():
         dictonary[key] = val
     read_dict(self.tag_id, 'tag_id.txt')
     self.id_tag = dict(map(reversed, self.tag_id.items()))
@@ -219,15 +215,15 @@ class Model(object):
           keep_prob=hparams.keep_prob)
 
       targets = targets_w[:, :]
-      tok_keep = tf.to_float(tf.greater(targets, PAD))
+      tok_keep = tf.cast(tf.greater(targets, PAD), tf.float32)
 
       linear = layers.linear_with_dropout(
           is_training, outputs, tags, keep_prob=hparams.keep_prob)
-      preds = tf.to_int32(tf.argmax(linear, axis=-1))
+      preds = tf.cast(tf.argmax(linear, axis=-1), tf.int32)
 
       if is_training:
-        int_tok_keep = tf.to_int32(tok_keep)
-        t_correct = tf.to_int32(tf.equal(preds, targets)) * int_tok_keep
+        int_tok_keep = tf.cast(tok_keep, tf.int32)
+        t_correct = tf.cast(tf.equal(preds, targets), tf.int32) * int_tok_keep
         accuracy = tf.reduce_sum(t_correct) / tf.reduce_sum(int_tok_keep)
 
         loss = tf.losses.sparse_softmax_cross_entropy(targets, linear, tok_keep)
@@ -271,11 +267,11 @@ class Model(object):
           outputs,
           tags,
           keep_prob=hparams.keep_prob)
-      preds_w = tf.to_int32(tf.argmax(logits, axis=-1))
-      tag_correct_w = tf.to_int32(tf.equal(preds_w, targets_w))
+      preds_w = tf.cast(tf.argmax(logits, axis=-1), tf.int32)
+      tag_correct_w = tf.cast(tf.equal(preds_w, targets_w), tf.int32)
       correct = tf.reduce_sum(tag_correct_w) / tf.size(
           tag_correct_w)
-      tokens_to_keep = tf.to_float(tf.greater(inputs[:, :, 0], PAD))
+      tokens_to_keep = tf.cast(tf.greater(inputs[:, :, 0], PAD), tf.float32)
       loss_w = tf.losses.sparse_softmax_cross_entropy(targets_w, logits,
                                                       tokens_to_keep)
 
@@ -301,9 +297,9 @@ class Model(object):
           outputs,
           output_size=tags,
           keep_prob=hparams.keep_prob)
-      preds_w = tf.to_int32(tf.argmax(outputs, axis=-1))
+      preds_w = tf.cast(tf.argmax(outputs, axis=-1), tf.int32)
       targets_w = inputs[:, :, 2]
-      tokens_to_keep = tf.to_float(tf.greater(inputs[:, :, 0], PAD))
+      tokens_to_keep = tf.cast(tf.greater(inputs[:, :, 0], PAD), tf.float32)
       loss = tf.losses.sparse_softmax_cross_entropy(targets_w, outputs,
                                                     tokens_to_keep)
     if is_training:
@@ -399,8 +395,7 @@ def run_training():
 
   # Get configuration and read additional parameters for json file.
   hparams = parameters()
-  keys = hparams.values().keys()
-  keys.sort()
+  keys = sorted(hparams.values().keys())
   tw_name = hparams.task_name
   for key in keys:
     value = hparams.values()[key]
