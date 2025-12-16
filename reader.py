@@ -585,11 +585,16 @@ class Reader(object):
       input_index_batch_start.append(input_index_start)
       tagets_batches.append(target_batch)
 
-    np_in_batches = np.asarray(input_batches)
+    # Convert each batch separately to avoid forcing a rectangular array across
+    # batches with different bucket sizes.
+    np_in_batches = [np.asarray(batch) for batch in input_batches]
+    np_idx_batch = [np.asarray(batch) for batch in input_index_batch]
+    np_idx_batch_start = [np.asarray(batch) for batch in input_index_batch_start]
+    np_targets_batches = [np.asarray(batch) for batch in tagets_batches]
     logging.info('Created %d char batches.' % len(np_in_batches))
 
-    return (np_in_batches, input_index_batch, input_index_batch_start,
-            tagets_batches)
+    return (np_in_batches, np_idx_batch, np_idx_batch_start,
+            np_targets_batches)
 
   def load(self, filename):
     """Load Embeddings."""
