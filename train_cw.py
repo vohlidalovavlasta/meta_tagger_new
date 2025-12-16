@@ -24,8 +24,12 @@ from absl import flags
 import layers
 import numpy as np
 import reader as rd
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
 import test as tester
+
+from hparams import HParams
+
+tf.disable_v2_behavior()
 
 logging = tf.compat.v1.logging
 
@@ -61,7 +65,7 @@ UNK = 1
 
 
 def parameters():
-  hparams = tf.contrib.training.HParams(
+  hparams = HParams(
       learning_rate=2e-3,
       hidden_char_size=300,
       hidden_word_size=500,
@@ -85,7 +89,7 @@ def parameters():
       tagging=4,
       early_stopping_steps=0,
       task_name='meta_word_char_v1')
-  if tf.gfile.Exists(FLAGS.config):
+  if tf.io.gfile.exists(FLAGS.config):
     params_json = ''
     for line in rd.read_file_to_stringio(FLAGS.config):
       params_json += line
@@ -120,18 +124,18 @@ class Vocab(object):
 
   def write(self, output_dir):
     output_dir = os.path.expanduser(output_dir)
-    with tf.gfile.GFile(os.path.join(output_dir, 'word_id.txt'), 'w') as f:
+    with tf.io.gfile.GFile(os.path.join(output_dir, 'word_id.txt'), 'w') as f:
       f.write(json.dumps(self.word_id))
-    with tf.gfile.GFile(os.path.join(output_dir, 'char_id.txt'), 'w') as f:
+    with tf.io.gfile.GFile(os.path.join(output_dir, 'char_id.txt'), 'w') as f:
       f.write(json.dumps(self.char_id))
-    with tf.gfile.GFile(os.path.join(output_dir, 'tag_id.txt'), 'w') as f:
+    with tf.io.gfile.GFile(os.path.join(output_dir, 'tag_id.txt'), 'w') as f:
       f.write(json.dumps(self.tag_id))
-    with tf.gfile.GFile(os.path.join(output_dir, 'pred_id.txt'), 'w') as f:
+    with tf.io.gfile.GFile(os.path.join(output_dir, 'pred_id.txt'), 'w') as f:
       f.write(json.dumps(self.pred_id))
 
   def read(self, output_dir):
     def read_dict(dictonary, filename):
-      output_json = json.load(tf.gfile.GFile(output_dir + filename, 'r'))
+      output_json = json.load(tf.io.gfile.GFile(output_dir + filename, 'r'))
       for key, val in output_json.items():
         dictonary[key] = val
     read_dict(self.tag_id, 'tag_id.txt')
@@ -495,14 +499,14 @@ def run_training():
   rate = tf.train.exponential_decay(hparams.learning_rate,
                                     global_step_tensor, steps_decay,
                                     hparams.learning_rate_decay)
-  optimizer = tf.contrib.opt.LazyAdamOptimizer(rate)
+  optimizer = tf.train.AdamOptimizer(rate)
 
   # Optimizer for char model
   steps_decay_ch = math.ceil(float(hparams.batch_char_size) / 5000.0)
   rate_ch = tf.train.exponential_decay(
       hparams.learning_rate, global_step_tensor_ch, steps_decay_ch,
       hparams.learning_rate_decay)
-  optimizer_ch = tf.contrib.opt.LazyAdamOptimizer(rate_ch)
+  optimizer_ch = tf.train.AdamOptimizer(rate_ch)
 
   # Optimizer for word model
   rate_joint = tf.train.exponential_decay(
@@ -510,7 +514,7 @@ def run_training():
       hparams.learning_rate_decay)
 
   # Optimizer for meta model
-  optimizer_joint = tf.contrib.opt.LazyAdamOptimizer(rate_joint)
+  optimizer_joint = tf.train.AdamOptimizer(rate_joint)
   model = Model(hparams)
 
   logging.info('Create training model.')
@@ -601,7 +605,7 @@ def run_training():
     # Continue training if model exists.
     logging.info('check existens %s' % (filename_model + '.meta'))
 
-    if tf.gfile.Exists(filename_model + '.meta'):
+    if tf.io.gfile.exists(filename_model + '.meta'):
       logging.info('found existing model')
       saver.restore(sess, os.path.join(output_dir, str(hparams.task_name)))
 

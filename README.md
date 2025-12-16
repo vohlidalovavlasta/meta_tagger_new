@@ -1,8 +1,8 @@
 # Software and hardware requirements
 
--   python 2.7
+-   python 3.8+
 -   numpy
--   Tensorflow 1.5+
+-   TensorFlow 2.x
 -   For fast training, a Nvidia graphic card or GPU
 
 # Credits

@@ -122,7 +122,7 @@ class Test(object):
       stringio: stringio output file.
     """
     stringio.seek(0)
-    with tf.gfile.GFile(filename, 'w') as f:
+    with tf.io.gfile.GFile(filename, 'w') as f:
       for line in stringio:
         f.write(line)
         #f.write(u'\n')

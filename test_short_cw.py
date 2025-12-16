@@ -17,12 +17,16 @@ import codecs
 import json
 import os
 from absl import flags
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
+
+from hparams import HParams
 
 FLAGS = flags.FLAGS
 flags.DEFINE_string('output_dir', '~/tensorboard/wsj_xtag_v2/', '')
 flags.DEFINE_string('task_name', 'meta_lstm_v6_e4', '')
 flags.DEFINE_string('testing_data', 'en-wsj-std-test-stanford-3.3.0.conll', '')
+
+tf.disable_v2_behavior()
 
 
 def read_corpus(filename, char_id, word_id, pred_id, idx=1, space=u'\t'):
@@ -46,7 +50,7 @@ def read_corpus(filename, char_id, word_id, pred_id, idx=1, space=u'\t'):
     print(sntc)
     return ([], [])
 
-  for line in codecs.getreader('utf-8')(tf.gfile.GFile(filename, 'r')):
+  for line in codecs.getreader('utf-8')(tf.io.gfile.GFile(filename, 'r')):
     if line.strip().startswith(u'#'): continue
     if len(line.split(u'\t')) > 4:
       snt.append([word_id.get(line.split(u'\t')[idx].lower(), 0),
@@ -64,7 +68,7 @@ class Vocab(object):
     (self.word_id, self.char_id, self.pred_id, self.tag_id,
      self.id_tag) = ({}, {}, {}, {}, {})
     def read(dictonary, filename):
-      output_json = json.load(tf.gfile.GFile(output_dir + filename, 'r'))
+      output_json = json.load(tf.io.gfile.GFile(output_dir + filename, 'r'))
       for key, val in output_json.items():
         dictonary[key] = val
     read(self.tag_id, 'tag_id.txt')
@@ -75,7 +79,7 @@ class Vocab(object):
 
 
 def main(_):
-  hparams = tf.contrib.training.HParams() # task_name='meta_word_char_v2'
+  hparams = HParams() # task_name='meta_word_char_v2'
   output_dir = os.path.expanduser(FLAGS.output_dir)
   voc = Vocab(output_dir)
 
@@ -114,4 +118,4 @@ def main(_):
         print (tag)
 
 if __name__ == '__main__':
-  tf.app.run()
+  tf.compat.v1.app.run()
