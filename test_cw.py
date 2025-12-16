@@ -18,10 +18,12 @@ import os
 from absl import flags
 import numpy as np
 import reader as rd
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
 
 import train_cw
 import test as tester
+
+tf.disable_v2_behavior()
 
 flags.DEFINE_string('out', '', 'Name of the output file.')
 
@@ -45,7 +47,7 @@ def read_corpus(filename, char_id, word_id, pred_id, idx=1, space=u'\t'):
     data_c.append([sntc])
     return ([], [])
 
-  for line in codecs.getreader('utf-8')(tf.gfile.GFile(filename, 'r')):
+  for line in codecs.getreader('utf-8')(tf.io.gfile.GFile(filename, 'r')):
     if line.strip().startswith(u'#'): continue
     if len(line.split(u'\t')) > 4:
       snt.append([word_id.get(line.split(u'\t')[idx].lower(), 0),
@@ -65,7 +67,7 @@ class Vocab(object):
     (self.word_id, self.char_id, self.pred_id, self.tag_id,
      self.id_tag) = ({}, {}, {}, {}, {})
     def read(dictonary, filename):
-      output_json = json.load(tf.gfile.GFile(output_dir + filename, 'r'))
+      output_json = json.load(tf.io.gfile.GFile(output_dir + filename, 'r'))
       for key, val in output_json.items():
         dictonary[key] = val
     read(self.tag_id, 'tag_id.txt')
@@ -157,4 +159,4 @@ def main(argv):
   run_testing()
 
 if __name__ == '__main__':
-  tf.app.run()
+  tf.compat.v1.app.run()

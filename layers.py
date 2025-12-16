@@ -12,7 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
+
+tf.disable_v2_behavior()
 
 
 def linear_with_dropout(is_training,
@@ -25,7 +27,7 @@ def linear_with_dropout(is_training,
   input_size = inputs.get_shape().as_list()[-1]
 
   if is_training and keep_prob < 1:
-    inputs = tf.nn.dropout(inputs, keep_prob=keep_prob)
+    inputs = tf.nn.dropout(inputs, rate=1 - keep_prob)
 
   shape = tf.shape(inputs)
   output_shape = []
@@ -35,7 +37,7 @@ def linear_with_dropout(is_training,
 
   inputs = tf.reshape(inputs, [-1, input_size])
   if not initializer:
-    initializer = tf.orthogonal_initializer()
+    initializer = tf.initializers.orthogonal()
 
   with tf.variable_scope('Linear'):
     matrix = tf.get_variable(
@@ -63,22 +65,22 @@ def lstm_layers(is_training,
   for n in range(num_layers):
     cudnn_lstms = True
     if cudnn_lstms:
-      cell_fw = tf.contrib.cudnn_rnn.CudnnCompatibleLSTMCell(hidden_size)
-      cell_bw = tf.contrib.cudnn_rnn.CudnnCompatibleLSTMCell(hidden_size)
+      cell_fw = tf.nn.rnn_cell.LSTMCell(hidden_size, use_peepholes=True)
+      cell_bw = tf.nn.rnn_cell.LSTMCell(hidden_size, use_peepholes=True)
     else:
-      cell_fw = tf.contrib.rnn.LSTMCell(hidden_size, use_peepholes=True)
-      cell_bw = tf.contrib.rnn.LSTMCell(hidden_size, use_peepholes=True)
+      cell_fw = tf.nn.rnn_cell.LSTMCell(hidden_size, use_peepholes=True)
+      cell_bw = tf.nn.rnn_cell.LSTMCell(hidden_size, use_peepholes=True)
 
     if is_training and recur_keep_prob < 1:
       input_size = outputs.get_shape().as_list()[-1]
-      cell_fw = tf.contrib.rnn.DropoutWrapper(
+      cell_fw = tf.nn.rnn_cell.DropoutWrapper(
           cell_fw,
           input_keep_prob=recur_keep_prob,
           state_keep_prob=recur_keep_prob,
           variational_recurrent=True,
           dtype=tf.float32,
           input_size=input_size)
-      cell_bw = tf.contrib.rnn.DropoutWrapper(
+      cell_bw = tf.nn.rnn_cell.DropoutWrapper(
           cell_bw,
           input_keep_prob=recur_keep_prob,
           state_keep_prob=recur_keep_prob,

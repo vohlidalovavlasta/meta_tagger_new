@@ -19,7 +19,7 @@ import os
 import numpy as np
 import tensorflow as tf
 
-logging = tf.compat.v1.logging
+logging = tf.get_logger()
 
 PAD = 0
 UNK = 1
@@ -28,7 +28,7 @@ UNK = 1
 def read_file_to_stringio(filename):
   """Reads a file into a unicode io.StringIO for faster IO."""
   string_io = io.StringIO()
-  with tf.gfile.GFile(filename, 'r') as f:
+  with tf.io.gfile.GFile(filename, 'r') as f:
     for line in codecs.getreader('utf-8')(f, errors='ignore'):
       string_io.write(line)
 
@@ -67,7 +67,7 @@ class Reader(object):
     """
     filename = os.path.expanduser(filename)
     data = []
-    with tf.gfile.GFile(filename, 'r') as f:
+    with tf.io.gfile.GFile(filename, 'r') as f:
       for line in codecs.getreader('utf-8')(f, errors='ignore'):
         if line.strip().startswith(u'#'):
           continue
@@ -598,7 +598,7 @@ class Reader(object):
     embeddings = []
     self.embedding_dict = {}
     cur_idx = len(self.special_tokens)
-    open_func = tf.gfile.GFile
+    open_func = tf.io.gfile.GFile
     with open_func(filename, 'rb') as f:
       reader = codecs.getreader('utf-8')(f, errors='ignore')
       for _, line in enumerate(reader):
