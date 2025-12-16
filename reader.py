@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import codecs
 import collections
 import io
 import os
@@ -29,7 +28,7 @@ def read_file_to_stringio(filename):
   """Reads a file into a unicode io.StringIO for faster IO."""
   string_io = io.StringIO()
   with tf.io.gfile.GFile(filename, 'r') as f:
-    for line in codecs.getreader('utf-8')(f, errors='ignore'):
+    for line in f:
       string_io.write(line)
 
   string_io.seek(0)
@@ -68,7 +67,7 @@ class Reader(object):
     filename = os.path.expanduser(filename)
     data = []
     with tf.io.gfile.GFile(filename, 'r') as f:
-      for line in codecs.getreader('utf-8')(f, errors='ignore'):
+      for line in f:
         if line.strip().startswith(u'#'):
           continue
         split = np.array(line.split(u'\t'))
@@ -599,8 +598,8 @@ class Reader(object):
     self.embedding_dict = {}
     cur_idx = len(self.special_tokens)
     open_func = tf.io.gfile.GFile
-    with open_func(filename, 'rb') as f:
-      reader = codecs.getreader('utf-8')(f, errors='ignore')
+    with open_func(filename, 'r') as f:
+      reader = f.readlines()
       for _, line in enumerate(reader):
         line = line.rstrip().split(' ')
         if len(line) > 2:
