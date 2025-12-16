@@ -19,7 +19,7 @@ import os
 import numpy as np
 import tensorflow as tf
 
-logging = tf.logging
+logging = tf.compat.v1.logging
 
 PAD = 0
 UNK = 1

@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 # Copyright 2018 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,6 +19,7 @@ import json
 import math
 import os.path
 import timeit
+from absl import app
 from absl import flags
 import layers
 import numpy as np
@@ -24,7 +27,7 @@ import reader as rd
 import tensorflow as tf
 import test as tester
 
-logging = tf.logging
+logging = tf.compat.v1.logging
 
 flags.DEFINE_string(
     'train',
